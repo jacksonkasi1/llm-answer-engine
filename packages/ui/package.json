@@ -6,7 +6,9 @@
     "./button": "./src/button.tsx",
     "./card": "./src/card.tsx",
     "./code": "./src/code.tsx",
-    "./root": "./index.ts"
+    "./components": "./components/index.ts",
+    "./lib": "./lib/index.ts",
+    "./icons": "./icons/index.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -23,5 +25,12 @@
     "eslint": "^8.57.0",
     "react": "^18.2.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@radix-ui/react-tooltip": "^1.0.7"
   }
 }

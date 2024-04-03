@@ -1,21 +1,27 @@
-'use client';
+"use client";
 // 1. Import Dependencies
-import { FormEvent, useEffect, useRef, useState, useCallback } from 'react';
-import { useActions, readStreamableValue } from 'ai/rsc';
-import { type AI } from './action';
-import { ChatScrollAnchor } from '@/lib/hooks/chat-scroll-anchor';
-import Textarea from 'react-textarea-autosize';
-import { useEnterSubmit } from '@/lib/hooks/use-enter-submit';
-import { Tooltip, TooltipContent, TooltipTrigger, } from '@/components/ui/tooltip';
-import { IconArrowElbow } from '@/components/ui/icons';
-import { Button } from '@/components/ui/button';
-// Custom components 
-import SearchResultsComponent from '@/components/answer/SearchResultsComponent';
-import UserMessageComponent from '@/components/answer/UserMessageComponent';
-import LLMResponseComponent from '@/components/answer/LLMResponseComponent';
-import ImagesComponent from '@/components/answer/ImagesComponent';
-import VideosComponent from '@/components/answer/VideosComponent';
-import FollowUpComponent from '@/components/answer/FollowUpComponent';
+import { FormEvent, useEffect, useRef, useState, useCallback } from "react";
+import { useActions, readStreamableValue } from "ai/rsc";
+import { type AI } from "./action";
+import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
+import Textarea from "react-textarea-autosize";
+import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { IconArrowElbow } from "@/components/ui/icons";
+
+import { Button } from "@repo/ui/components";
+
+// Custom components
+import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
+import UserMessageComponent from "@/components/answer/UserMessageComponent";
+import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
+import ImagesComponent from "@/components/answer/ImagesComponent";
+import VideosComponent from "@/components/answer/VideosComponent";
+import FollowUpComponent from "@/components/answer/FollowUpComponent";
 // 2. Set up types
 interface SearchResult {
   favicon: string;
@@ -62,23 +68,23 @@ export default function Page() {
   // 4. Set up form submission handling
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [inputValue, setInputValue] = useState('hi');
+  const [inputValue, setInputValue] = useState("hi");
   // 5. Set up state for the messages
   const [messages, setMessages] = useState<Message[]>([]);
   // 6. Set up state for the CURRENT LLM response (for displaying in the UI while streaming)
-  const [currentLlmResponse, setCurrentLlmResponse] = useState('');
+  const [currentLlmResponse, setCurrentLlmResponse] = useState("");
   // 7. Set up handler for when the user clicks on the follow up button
   const handleFollowUpClick = useCallback(async (question: string) => {
-    setCurrentLlmResponse('');
+    setCurrentLlmResponse("");
     await handleUserMessageSubmission(question);
   }, []);
   // 8. For the form submission, we need to set up a handler that will be called when the user submits the form
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '/') {
+      if (e.key === "/") {
         if (
           e.target &&
-          ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).nodeName)
+          ["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).nodeName)
         ) {
           return;
         }
@@ -89,9 +95,9 @@ export default function Page() {
         }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [inputRef]);
   // 9. Set up handler for when a submission is made, which will call the myAction function
@@ -99,28 +105,32 @@ export default function Page() {
     if (!message) return;
     await handleUserMessageSubmission(message);
   };
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleFormSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     const messageToSend = inputValue.trim();
     if (!messageToSend) return;
-    setInputValue('');
+    setInputValue("");
     await handleSubmit(messageToSend);
   };
-  const handleUserMessageSubmission = async (userMessage: string): Promise<void> => {
-    console.log('handleUserMessageSubmission', userMessage);
+  const handleUserMessageSubmission = async (
+    userMessage: string,
+  ): Promise<void> => {
+    console.log("handleUserMessageSubmission", userMessage);
     const newMessageId = Date.now();
     const newMessage = {
       id: newMessageId,
-      type: 'userMessage',
+      type: "userMessage",
       userMessage: userMessage,
-      content: '',
+      content: "",
       images: [],
       videos: [],
       followUp: null,
       isStreaming: true,
       searchResults: [] as SearchResult[],
     };
-    setMessages(prevMessages => [...prevMessages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
     try {
       const streamableValue = await myAction(userMessage);
@@ -129,10 +139,15 @@ export default function Page() {
         const typedMessage = message as StreamMessage;
         setMessages((prevMessages) => {
           const messagesCopy = [...prevMessages];
-          const messageIndex = messagesCopy.findIndex(msg => msg.id === newMessageId);
+          const messageIndex = messagesCopy.findIndex(
+            (msg) => msg.id === newMessageId,
+          );
           if (messageIndex !== -1) {
             const currentMessage = messagesCopy[messageIndex];
-            if (typedMessage.llmResponse && typedMessage.llmResponse !== lastAppendedResponse) {
+            if (
+              typedMessage.llmResponse &&
+              typedMessage.llmResponse !== lastAppendedResponse
+            ) {
               currentMessage.content += typedMessage.llmResponse;
               lastAppendedResponse = typedMessage.llmResponse; // Update last appended response
             }
@@ -171,9 +186,14 @@ export default function Page() {
             <div key={`message-${index}`} className="flex flex-col md:flex-row">
               <div className="w-full md:w-3/4 md:pr-2">
                 {message.searchResults && (
-                  <SearchResultsComponent key={`searchResults-${index}`} searchResults={message.searchResults} />
+                  <SearchResultsComponent
+                    key={`searchResults-${index}`}
+                    searchResults={message.searchResults}
+                  />
                 )}
-                {message.type === 'userMessage' && <UserMessageComponent message={message.userMessage} />}
+                {message.type === "userMessage" && (
+                  <UserMessageComponent message={message.userMessage} />
+                )}
                 <LLMResponseComponent
                   llmResponse={message.content}
                   currentLlmResponse={currentLlmResponse}
@@ -182,13 +202,27 @@ export default function Page() {
                 />
                 {message.followUp && (
                   <div className="flex flex-col">
-                    <FollowUpComponent key={`followUp-${index}`} followUp={message.followUp} handleFollowUpClick={handleFollowUpClick} />
+                    <FollowUpComponent
+                      key={`followUp-${index}`}
+                      followUp={message.followUp}
+                      handleFollowUpClick={handleFollowUpClick}
+                    />
                   </div>
                 )}
               </div>
               <div className="w-full md:w-1/4 lg:pl-2">
-                {message.videos && <VideosComponent key={`videos-${index}`} videos={message.videos} />}
-                {message.images && <ImagesComponent key={`images-${index}`} images={message.images} />}
+                {message.videos && (
+                  <VideosComponent
+                    key={`videos-${index}`}
+                    videos={message.videos}
+                  />
+                )}
+                {message.images && (
+                  <ImagesComponent
+                    key={`images-${index}`}
+                    images={message.images}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -205,12 +239,12 @@ export default function Page() {
               onSubmit={async (e: FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
                 handleFormSubmit(e);
-                setCurrentLlmResponse('');
+                setCurrentLlmResponse("");
                 if (window.innerWidth < 600) {
-                  (e.target as HTMLFormElement)['message']?.blur();
+                  (e.target as HTMLFormElement)["message"]?.blur();
                 }
                 const value = inputValue.trim();
-                setInputValue('');
+                setInputValue("");
                 if (!value) return;
               }}
             >
@@ -233,7 +267,11 @@ export default function Page() {
                 <div className="absolute right-0 top-4 sm:right-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button type="submit" size="icon" disabled={inputValue === ''}>
+                      <Button
+                        type="submit"
+                        size="icon"
+                        disabled={inputValue === ""}
+                      >
                         <IconArrowElbow />
                         <span className="sr-only">Send message</span>
                       </Button>
@@ -248,4 +286,4 @@ export default function Page() {
       </div>
     </div>
   );
-};
+}

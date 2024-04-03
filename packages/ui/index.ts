@@ -1,3 +1,2 @@
-export const config = {
-  sample: 1,
-};
+export * from './components'
+export * from './lib'
