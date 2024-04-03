@@ -62,7 +62,7 @@ export default function Page() {
   // 4. Set up form submission handling
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState('hi');
   // 5. Set up state for the messages
   const [messages, setMessages] = useState<Message[]>([]);
   // 6. Set up state for the CURRENT LLM response (for displaying in the UI while streaming)

@@ -1,26 +1,26 @@
 // 1. Import dependencies
-import 'server-only';
-import { createAI, createStreamableValue } from 'ai/rsc';
-import { OpenAI } from 'openai';
-import cheerio from 'cheerio';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { Document as DocumentInterface } from 'langchain/document';
-import { OpenAIEmbeddings } from '@langchain/openai';
+import "server-only";
+import { createAI, createStreamableValue } from "ai/rsc";
+import { OpenAI } from "openai";
+import cheerio from "cheerio";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { Document as DocumentInterface } from "langchain/document";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
 // 1.5 Configuration file for inference model, embeddings model, and other parameters
-import { config } from './config';
+import { config } from "./config";
 // 2. Determine which embeddings mode and which inference model to use based on the config.tsx. Currently suppport for OpenAI, Groq and partial support for Ollama embeddings and inference
 let openai: OpenAI;
 if (config.useOllamaInference) {
   openai = new OpenAI({
     baseURL: config.ollamaBaseUrl,
-    apiKey: 'ollama'
+    apiKey: "ollama",
   });
 } else {
   openai = new OpenAI({
     baseURL: config.nonOllamaBaseURL,
-    apiKey: config.inferenceAPIKey
+    apiKey: config.inferenceAPIKey,
   });
 }
 // 2.5 Set up the embeddings model based on the config.tsx
@@ -28,11 +28,11 @@ let embeddings: OllamaEmbeddings | OpenAIEmbeddings;
 if (config.useOllamaEmbeddings) {
   embeddings = new OllamaEmbeddings({
     model: config.embeddingsModel,
-    baseUrl: "http://localhost:11434"
+    baseUrl: "http://localhost:11434",
   });
 } else {
   embeddings = new OpenAIEmbeddings({
-    modelName: config.embeddingsModel
+    modelName: config.embeddingsModel,
   });
 }
 // 3. Define interfaces for search results and content results
@@ -45,42 +45,93 @@ interface SearchResult {
 interface ContentResult extends SearchResult {
   html: string;
 }
+
 // 4. Fetch search results from Brave Search API
-async function getSources(message: string, numberOfPagesToScan = config.numberOfPagesToScan): Promise<SearchResult[]> {
+async function getSources(
+  message: string,
+  numberOfPagesToScan = config.numberOfPagesToScan,
+): Promise<SearchResult[]> {
+  const mockData = [
+    {
+      title: "OpenAI Unveils Latest GPT Model",
+      link: "https://www.example.com/news/openai-latest-gpt-model",
+      snippet:
+        "OpenAI has announced its latest iteration of the Generative Pre-trained Transformer model, offering unprecedented accuracy and flexibility.",
+      favicon: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
+    },
+    {
+      title: "Exploring the Impact of GPT Models on Various Industries",
+      link: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Whatsapp2_colored_svg-1024.png",
+      snippet:
+        "From healthcare to entertainment, GPT models are revolutionizing how businesses operate, enhancing efficiency and creativity.",
+      favicon: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-1024.png",
+    },
+    {
+      title: "The Future of Education with GPT: Personalized Learning",
+      link: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Pinterest_colored_svg-1024.png",
+      snippet:
+        "Educational technologies are integrating GPT models to provide personalized learning experiences, making education more accessible and effective.",
+      favicon: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-1024.png",
+    },
+    {
+      title: "How GPT Technology is Changing the Game in Creative Writing",
+      link: "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Youtube_colored_svg-1024.png",
+      snippet:
+        "Discover how GPT technology empowers writers by offering tools for idea generation, editing, and even writing drafts, thereby transforming the creative process.",
+      favicon: "https://www.creativeinsights.com/favicon.ico",
+    },
+  ];
+
   try {
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=${numberOfPagesToScan}`, {
-      headers: {
-        'Accept': 'application/json',
-        'Accept-Encoding': 'gzip',
-        "X-Subscription-Token": process.env.BRAVE_SEARCH_API_KEY as string
-      }
-    });
+    const response = await fetch(
+      `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=${numberOfPagesToScan}`,
+      {
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip",
+          "X-Subscription-Token": process.env.BRAVE_SEARCH_API_KEY as string,
+        },
+      },
+    );
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // throw new Error(`HTTP error! status: ${response.status}`);
+      return mockData;
     }
     const jsonResponse = await response.json();
     if (!jsonResponse.web || !jsonResponse.web.results) {
-      throw new Error('Invalid API response format');
+      throw new Error("Invalid API response format");
     }
-    const final = jsonResponse.web.results.map((result: any): SearchResult => ({
-      title: result.title,
-      link: result.url,
-      snippet: result.description,
-      favicon: result.profile.img
-    }));
+    const final = jsonResponse.web.results.map(
+      (result: any): SearchResult => ({
+        title: result.title,
+        link: result.url,
+        snippet: result.description,
+        favicon: result.profile.img,
+      }),
+    );
     return final;
   } catch (error) {
-    console.error('Error fetching search results:', error);
+    console.error("Error fetching search results:", error);
     throw error;
   }
 }
+
 // 5. Fetch contents of top 10 search results
-async function get10BlueLinksContents(sources: SearchResult[]): Promise<ContentResult[]> {
-  async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 800): Promise<Response> {
+async function get10BlueLinksContents(
+  sources: SearchResult[],
+): Promise<ContentResult[]> {
+  async function fetchWithTimeout(
+    url: string,
+    options: RequestInit = {},
+    timeout = 800,
+  ): Promise<Response> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
-      const response = await fetch(url, { ...options, signal: controller.signal });
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
       clearTimeout(timeoutId);
       return response;
     } catch (error) {
@@ -96,29 +147,33 @@ async function get10BlueLinksContents(sources: SearchResult[]): Promise<ContentR
       $("script, style, head, nav, footer, iframe, img").remove();
       return $("body").text().replace(/\s+/g, " ").trim();
     } catch (error) {
-      console.error('Error extracting main content:', error);
+      console.error("Error extracting main content:", error);
       throw error;
     }
   }
-  const promises = sources.map(async (source): Promise<ContentResult | null> => {
-    try {
-      const response = await fetchWithTimeout(source.link, {}, 800);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${source.link}. Status: ${response.status}`);
+  const promises = sources.map(
+    async (source): Promise<ContentResult | null> => {
+      try {
+        const response = await fetchWithTimeout(source.link, {}, 800);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch ${source.link}. Status: ${response.status}`,
+          );
+        }
+        const html = await response.text();
+        const mainContent = extractMainContent(html);
+        return { ...source, html: mainContent };
+      } catch (error) {
+        // console.error(`Error processing ${source.link}:`, error);
+        return null;
       }
-      const html = await response.text();
-      const mainContent = extractMainContent(html);
-      return { ...source, html: mainContent };
-    } catch (error) {
-      // console.error(`Error processing ${source.link}:`, error);
-      return null;
-    }
-  });
+    },
+  );
   try {
     const results = await Promise.all(promises);
     return results.filter((source): source is ContentResult => source !== null);
   } catch (error) {
-    console.error('Error fetching and processing blue links contents:', error);
+    console.error("Error fetching and processing blue links contents:", error);
     throw error;
   }
 }
@@ -135,9 +190,19 @@ async function processAndVectorizeContent(
       const content = contents[i];
       if (content.html.length > 0) {
         try {
-          const splitText = await new RecursiveCharacterTextSplitter({ chunkSize: textChunkSize, chunkOverlap: textChunkOverlap }).splitText(content.html);
-          const vectorStore = await MemoryVectorStore.fromTexts(splitText, { title: content.title, link: content.link }, embeddings);
-          return await vectorStore.similaritySearch(query, numberOfSimilarityResults);
+          const splitText = await new RecursiveCharacterTextSplitter({
+            chunkSize: textChunkSize,
+            chunkOverlap: textChunkOverlap,
+          }).splitText(content.html);
+          const vectorStore = await MemoryVectorStore.fromTexts(
+            splitText,
+            { title: content.title, link: content.link },
+            embeddings,
+          );
+          return await vectorStore.similaritySearch(
+            query,
+            numberOfSimilarityResults,
+          );
         } catch (error) {
           console.error(`Error processing content for ${content.link}:`, error);
         }
@@ -145,34 +210,60 @@ async function processAndVectorizeContent(
     }
     return [];
   } catch (error) {
-    console.error('Error processing and vectorizing content:', error);
+    console.error("Error processing and vectorizing content:", error);
     throw error;
   }
 }
+
 // 7. Fetch image search results from Brave Search API
-async function getImages(message: string): Promise<{ title: string; link: string }[]> {
+async function getImages(
+  message: string,
+): Promise<{ title: string; link: string }[]> {
+  const mockData = [
+    {
+      title: "Sunset Over the Mountains",
+      link: "https://blog.routinehub.co/content/images/2023/02/openAI-chat-gpt-1.jpg",
+    },
+    {
+      title: "Vibrant Cityscape at Night",
+      link: "https://www.bacarialegal.com/wp-content/uploads/2023/03/CHAT_GPT_OPENAI-1300x731.jpg",
+    },
+    {
+      title: "Stunning View of the Milky Way",
+      link: "https://codegeeks.solutions/wp-content/uploads/2023/03/What-is-ChatGPT-Beginners-Guide-to-Using-the-AI-Chatbot-1024x451.webp",
+    },
+    {
+      title: "Colorful Coral Reef Underwater",
+      link: "https://www.avocats-mathias.com/wp-content/uploads/2023/04/mathias-avocats-chat-gpt-VO-1-scaled.jpeg",
+    },
+  ];
+
   try {
-    const response = await fetch(`https://api.search.brave.com/res/v1/images/search?q=${message}&spellcheck=1`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip",
-        "X-Subscription-Token": process.env.BRAVE_SEARCH_API_KEY as string
-      }
-    });
+    const response = await fetch(
+      `https://api.search.brave.com/res/v1/images/search?q=${message}&spellcheck=1`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip",
+          "X-Subscription-Token": process.env.BRAVE_SEARCH_API_KEY as string,
+        },
+      },
+    );
     if (!response.ok) {
-      throw new Error(`Network response was not ok. Status: ${response.status}`);
+      // throw new Error(`Network response was not ok. Status: ${response.status}`);
+      return mockData;
     }
     const data = await response.json();
     const validLinks = await Promise.all(
       data.results.map(async (result: any) => {
         const link = result.properties.url;
-        if (typeof link === 'string') {
+        if (typeof link === "string") {
           try {
-            const imageResponse = await fetch(link, { method: 'HEAD' });
+            const imageResponse = await fetch(link, { method: "HEAD" });
             if (imageResponse.ok) {
-              const contentType = imageResponse.headers.get('content-type');
-              if (contentType && contentType.startsWith('image/')) {
+              const contentType = imageResponse.headers.get("content-type");
+              if (contentType && contentType.startsWith("image/")) {
                 return {
                   title: result.properties.title,
                   link: link,
@@ -184,44 +275,51 @@ async function getImages(message: string): Promise<{ title: string; link: string
           }
         }
         return null;
-      })
+      }),
     );
-    const filteredLinks = validLinks.filter((link): link is { title: string; link: string } => link !== null);
+    const filteredLinks = validLinks.filter(
+      (link): link is { title: string; link: string } => link !== null,
+    );
     return filteredLinks.slice(0, 9);
   } catch (error) {
-    console.error('There was a problem with your fetch operation:', error);
+    console.error("There was a problem with your fetch operation:", error);
     throw error;
   }
 }
+
 // 8. Fetch video search results from Google Serper API
-async function getVideos(message: string): Promise<{ imageUrl: string, link: string }[] | null> {
-  const url = 'https://google.serper.dev/videos';
+async function getVideos(
+  message: string,
+): Promise<{ imageUrl: string; link: string }[] | null> {
+  const url = "https://google.serper.dev/videos";
   const data = JSON.stringify({
-    "q": message
+    q: message,
   });
   const requestOptions: RequestInit = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'X-API-KEY': process.env.SERPER_API as string,
-      'Content-Type': 'application/json'
+      "X-API-KEY": process.env.SERPER_API as string,
+      "Content-Type": "application/json",
     },
-    body: data
+    body: data,
   };
   try {
     const response = await fetch(url, requestOptions);
     if (!response.ok) {
-      throw new Error(`Network response was not ok. Status: ${response.status}`);
+      throw new Error(
+        `Network response was not ok. Status: ${response.status}`,
+      );
     }
     const responseData = await response.json();
     const validLinks = await Promise.all(
       responseData.videos.map(async (video: any) => {
         const imageUrl = video.imageUrl;
-        if (typeof imageUrl === 'string') {
+        if (typeof imageUrl === "string") {
           try {
-            const imageResponse = await fetch(imageUrl, { method: 'HEAD' });
+            const imageResponse = await fetch(imageUrl, { method: "HEAD" });
             if (imageResponse.ok) {
-              const contentType = imageResponse.headers.get('content-type');
-              if (contentType && contentType.startsWith('image/')) {
+              const contentType = imageResponse.headers.get("content-type");
+              if (contentType && contentType.startsWith("image/")) {
                 return { imageUrl, link: video.link };
               }
             }
@@ -230,12 +328,14 @@ async function getVideos(message: string): Promise<{ imageUrl: string, link: str
           }
         }
         return null;
-      })
+      }),
     );
-    const filteredLinks = validLinks.filter((link): link is { imageUrl: string, link: string } => link !== null);
+    const filteredLinks = validLinks.filter(
+      (link): link is { imageUrl: string; link: string } => link !== null,
+    );
     return filteredLinks.slice(0, 9);
   } catch (error) {
-    console.error('Error fetching videos:', error);
+    console.error("Error fetching videos:", error);
     throw error;
   }
 }
@@ -277,38 +377,44 @@ async function myAction(userMessage: string): Promise<any> {
       getSources(userMessage),
       getVideos(userMessage),
     ]);
-    streamable.update({ 'searchResults': sources });
-    streamable.update({ 'images': images });
-    streamable.update({ 'videos': videos });
+    streamable.update({ searchResults: sources });
+    streamable.update({ images: images });
+    streamable.update({ videos: videos });
     const html = await get10BlueLinksContents(sources);
     const vectorResults = await processAndVectorizeContent(html, userMessage);
     const chatCompletion = await openai.chat.completions.create({
-      messages:
-        [{
-          role: "system", content: `
-          - Here is my query "${userMessage}", respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `
+      messages: [
+        {
+          role: "system",
+          content: `
+          - Here is my query "${userMessage}", respond back with an answer that is as long as possible. If you can't find any relevant results, respond with "No relevant results found." `,
         },
-        { role: "user", content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. ` },
-        ], stream: true, model: config.inferenceModel
+        {
+          role: "user",
+          content: ` - Here are the top results from a similarity search: ${JSON.stringify(vectorResults)}. `,
+        },
+      ],
+      stream: true,
+      model: config.inferenceModel,
     });
     for await (const chunk of chatCompletion) {
       if (chunk.choices[0].delta && chunk.choices[0].finish_reason !== "stop") {
-        streamable.update({ 'llmResponse': chunk.choices[0].delta.content });
+        streamable.update({ llmResponse: chunk.choices[0].delta.content });
       } else if (chunk.choices[0].finish_reason === "stop") {
-        streamable.update({ 'llmResponseEnd': true });
+        streamable.update({ llmResponseEnd: true });
       }
     }
     if (!config.useOllamaInference) {
       const followUp = await relevantQuestions(sources);
-      streamable.update({ 'followUp': followUp });
+      streamable.update({ followUp: followUp });
     }
-    streamable.done({ status: 'done' });
+    streamable.done({ status: "done" });
   })();
   return streamable.value;
 }
 // 11. Define initial AI and UI states
 const initialAIState: {
-  role: 'user' | 'assistant' | 'system' | 'function';
+  role: "user" | "assistant" | "system" | "function";
   content: string;
   id?: string;
   name?: string;
@@ -320,7 +426,7 @@ const initialUIState: {
 // 12. Export the AI instance
 export const AI = createAI({
   actions: {
-    myAction
+    myAction,
   },
   initialUIState,
   initialAIState,
