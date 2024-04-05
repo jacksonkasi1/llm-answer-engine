@@ -1,0 +1,19 @@
+{
+  "name": "hono-api",
+  "type": "module",
+  "scripts": {
+    "start": "vercel dev",
+    "dev:hono": "tsx watch api/index.ts",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.9.1",
+    "dotenv": "^16.4.5",
+    "hono": "^4.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "vercel": "^32.4.1"
+  }
+}

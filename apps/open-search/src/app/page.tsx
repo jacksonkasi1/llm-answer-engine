@@ -1,27 +1,27 @@
 "use client";
 // 1. Import Dependencies
-import { FormEvent, useEffect, useRef, useState, useCallback } from "react";
-import { useActions, readStreamableValue } from "ai/rsc";
-import { type AI } from "./action";
 import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
-import Textarea from "react-textarea-autosize";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { IconArrowElbow } from "@/components/ui/icons";
+} from "@repo/ui/components";
+import { IconArrowElbow } from "@repo/ui/icons";
+import { readStreamableValue, useActions } from "ai/rsc";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import Textarea from "react-textarea-autosize";
+import { type AI } from "./action";
 
 import { Button } from "@repo/ui/components";
 
 // Custom components
+import FollowUpComponent from "@/components/answer/FollowUpComponent";
+import ImagesComponent from "@/components/answer/ImagesComponent";
+import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
 import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
 import UserMessageComponent from "@/components/answer/UserMessageComponent";
-import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
-import ImagesComponent from "@/components/answer/ImagesComponent";
 import VideosComponent from "@/components/answer/VideosComponent";
-import FollowUpComponent from "@/components/answer/FollowUpComponent";
 // 2. Set up types
 interface SearchResult {
   favicon: string;

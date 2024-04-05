@@ -142,3 +142,5 @@ export default function Page(): JSX.Element {
     </main>
   );
 }
+
+export const runtime = 'edge';

@@ -10,3 +10,4 @@ node_modules
 .vercel
 .vscode
 .idea
+config.md

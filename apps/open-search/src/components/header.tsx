@@ -1,7 +1,7 @@
+import { Button } from '@repo/ui/components';
 import {
   IconGitHub,
-} from '@/components/ui/icons';
-import { Button } from '@/components/ui/button';
+} from '@repo/ui/icons';
 
 export async function Header() {
   return (
