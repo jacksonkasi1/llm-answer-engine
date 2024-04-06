@@ -1,46 +1,59 @@
-import { Toaster } from '@repo/ui/components';
-import { Analytics } from '@vercel/analytics/react';
-import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
-import type { Metadata } from 'next';
-import './globals.css';
+import { Toaster } from "@repo/ui/components";
+import { Analytics } from "@vercel/analytics/react";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
+import "./globals.css";
 
-import { Header } from '@/components/header';
-import { Providers } from '@/components/providers';
-import { AI } from './action';
+import { Header } from "@/components/header";
+import { Providers } from "@/components/providers";
+
+import { AI } from "@/actions";
+
+const projectName = "Open Search";
 
 const meta = {
-  title: 'answer engine',
+  title: `${projectName} - Powering insights with AI`,
   description:
-    'anwser engine built by developers digest',
+    "Discover insights faster with Open Search. Combining the power of Google Search, OpenAI, and Cloudflare Workers AI to deliver and interact with AI-driven results.",
 };
+
 export const metadata: Metadata = {
   ...meta,
   title: {
-    default: 'answer engine',
-    template: `%s - answer engine`,
+    default: meta.title,
+    template: `%s | ${projectName}`,
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
   },
   twitter: {
     ...meta,
-    card: 'summary_large_image',
-    site: '@vercel',
+    card: "summary_large_image",
+    site: "@vercel", // todo: Update
   },
   openGraph: {
     ...meta,
-    locale: 'en-US',
-    type: 'website',
+    locale: "en-US",
+    type: "website",
+    url: "https://www.example.com", // todo: Update domain
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Open Search - AI-driven insights",
+      },
+    ],
   },
 };
 
 export const viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
 };
 
@@ -75,5 +88,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-// export const runtime = 'edge';

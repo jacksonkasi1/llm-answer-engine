@@ -1,5 +1,6 @@
 "use client";
 // 1. Import Dependencies
+import { type AI } from "@/actions";
 import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import {
@@ -11,7 +12,6 @@ import { IconArrowElbow } from "@repo/ui/icons";
 import { readStreamableValue, useActions } from "ai/rsc";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Textarea from "react-textarea-autosize";
-import { type AI } from "./action";
 
 import { Button } from "@repo/ui/components";
 
