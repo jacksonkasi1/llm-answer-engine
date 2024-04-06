@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx}\" --cache"
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx}\" --cache",
+    "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static"
   },
   "dependencies": {
     "@langchain/community": "^0.0.40",
@@ -58,6 +59,7 @@
     "postcss": "^8",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^3.48.0"
   }
 }

@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     ...meta,
     locale: "en-US",
     type: "website",
-    url: "https://www.example.com", // todo: Update domain
+    url: "/og-image.png", // todo: Update domain
     images: [
       {
         url: "/og-image.png",
