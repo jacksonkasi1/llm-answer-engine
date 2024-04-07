@@ -7,6 +7,7 @@ import { createAI, createStreamableValue } from "ai/rsc";
 // ** import action
 import {
   chatCompletion,
+  cloudflareChatCompletion,
   get10BlueLinksContents,
   getImages,
   getSources,
@@ -28,17 +29,17 @@ import { initialAIState, initialUIState } from "@/types";
  */
 async function myAction(userMessage: string): Promise<any> {
   "use server";
+  // Initialize streamable state for dynamic updates
+  const streamable = createStreamableValue({});
   try {
-    // Initialize streamable state for dynamic updates
-    const streamable = createStreamableValue({});
     console.log(`🔍 Processing user message: "${userMessage}"`);
 
     // Immediately invoked async function to perform parallel data fetching and processing
     (async () => {
       // Parallel fetching of images, sources, and videos related to the user message
-      const [images, sources, videos] = await Promise.all([
-        getImages(userMessage),
+      const [sources, images, videos] = await Promise.all([
         getSources(userMessage),
+        getImages(userMessage),
         getVideos(userMessage),
       ]);
       console.log("✅ Data fetching complete");
@@ -58,7 +59,10 @@ async function myAction(userMessage: string): Promise<any> {
       console.log("🔎 Vectorization and similarity search complete");
 
       // Perform chat completion with vectorized results
-      await chatCompletion(userMessage, vectorResults, streamable);
+      if (false) await chatCompletion(userMessage, vectorResults, streamable);
+
+      await cloudflareChatCompletion(userMessage, vectorResults, streamable);
+
       console.log("💬 Chat completion processed");
 
       // Fetch relevant follow-up questions based on the sources
@@ -74,6 +78,10 @@ async function myAction(userMessage: string): Promise<any> {
   } catch (error) {
     // Log errors and throw to indicate failure
     console.error("❌ Error in myAction:", error);
+
+    // Mark the streamable state as failed
+    streamable.done({ status: "failed" });
+
     throw error;
   }
 }

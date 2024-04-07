@@ -49,7 +49,7 @@ export const relevantQuestions = async (
   }
 };
 
-// OpenAI chat completion function with streaming
+// Groq chat completion function with streaming
 export async function chatCompletion(
   userMessage: string,
   vectorResults: any[],

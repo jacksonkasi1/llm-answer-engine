@@ -29,14 +29,14 @@ export async function getSources(
       throw new Error("Google Search API request failed");
     }
 
-    const jsonResponse = await response.json();
+    const jsonResponse: any = await response.json();
 
-    if (!jsonResponse.items) {
+    if (!jsonResponse?.items) {
       throw new Error("Invalid API response format");
     }
 
     const results: SearchResult[] = await Promise.all(
-      jsonResponse.items.map(async (item: any): Promise<SearchResult> => {
+      jsonResponse?.items.map(async (item: any): Promise<SearchResult> => {
         const faviconUrl = `${gConfig.favBaseURL}?domain=${
           new URL(item.link).hostname
         }&sz=128`;
@@ -79,9 +79,9 @@ export async function getImages(
       throw new Error("Google Search API request failed for images");
     }
 
-    const jsonResponse = await response.json();
+    const jsonResponse: any = await response.json();
 
-    if (!jsonResponse.items) {
+    if (!jsonResponse?.items) {
       throw new Error("Invalid API response format for images");
     }
 
@@ -130,9 +130,9 @@ export async function getVideos(
       );
       return null;
     }
-    const responseData = await response.json();
+    const responseData: any = await response.json();
 
-    const videoPromises = responseData.videos.map((video: any) =>
+    const videoPromises = responseData?.videos.map((video: any) =>
       fetch(video.imageUrl, { method: "HEAD" })
         .then((imageResponse) => {
           if (imageResponse.ok) {
