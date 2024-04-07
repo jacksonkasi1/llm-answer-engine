@@ -1,28 +1,87 @@
-import { Button } from '@repo/ui/components';
-import {
-  IconGitHub,
-} from '@repo/ui/icons';
+"use client";
 
-export async function Header() {
+import { Bird, Github, Rabbit } from "lucide-react";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { modelAtom } from "@/store";
+import { useAtom } from "jotai";
+
+const GitHubIcon = () => {
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between w-full px-4 border-b h-14 shrink-0 dark:bg-slate-800 bg-white backdrop-blur-xl">
-      <span className="inline-flex items-center home-links whitespace-nowrap">
-        <a href="https://developersdigest.tech" rel="noopener" target="_blank">
-          <span className="block sm:inline text-lg sm:text-xl lg:text-2xl font-semibold dark:text-white text-black">answer engine</span>
-        </a>
-      </span>
-      <div className="flex items-center justify-end space-x-2">
-        <Button variant="outline" asChild>
-          <a
-            target="_blank"
-            href="https://git.new/answr"
-            rel="noopener noreferrer"
-            className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-black dark:text-white font-semibold py-2 px-4 rounded shadow"
+    <a
+      href="https://github.com/jacksonkasi1/open-search/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition duration-300 ease-in-out"
+      aria-label="Open Search GitHub"
+    >
+      <Github className="text-current h-6 w-6" />
+    </a>
+  );
+};
+
+export function Header() {
+  const [modal, setModel] = useAtom(modelAtom);
+
+  const handleModelChange = (value: string) => {
+    setModel(value);
+  };
+
+  return (
+    <header className="sticky top-0 z-50 grid grid-cols-3 items-center w-full px-4 h-14 backdrop-filter backdrop-blur-lg bg-opacity-30 dark:bg-opacity-30 ">
+      <div className="justify-self-start">
+        <Select onValueChange={handleModelChange} defaultValue={modal}>
+          <SelectTrigger
+            id="model"
+            className="items-start [&_[data-description]]:hidden"
           >
-            <IconGitHub />
-            <span className="hidden ml-2 md:flex">github</span>
-          </a>
-        </Button>
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="groq">
+              <div className="flex items-start gap-3 text-muted-foreground">
+                <Rabbit className="size-5" />
+                <div className="grid gap-0.5">
+                  <p>
+                    Open AI{" "}
+                    <span className="font-medium text-foreground">Groq</span>
+                  </p>
+                  <p className="text-xs" data-description>
+                    Open AI runs on the Groq model for speed and efficiency.
+                  </p>
+                </div>
+              </div>
+            </SelectItem>
+            <SelectItem value="cloudflare">
+              <div className="flex items-start gap-3 text-muted-foreground">
+                <Bird className="size-5" />
+                <div className="grid gap-0.5">
+                  <p>
+                    Open Models{" "}
+                    <span className="font-medium text-foreground">
+                      Cloudflare
+                    </span>
+                  </p>
+                  <p className="text-xs" data-description>
+                    Open Model runs on the Cloudflare Edge Network.
+                  </p>
+                </div>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <h1 className="justify-self-center text-lg sm:text-xl lg:text-2xl font-semibold dark:text-gray-800 text-white">
+        Open Search
+      </h1>
+      <div className="justify-self-end">
+        <GitHubIcon />
       </div>
     </header>
   );
