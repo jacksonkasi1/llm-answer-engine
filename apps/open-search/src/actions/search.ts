@@ -1,5 +1,5 @@
 // ** import config
-import { apiConfig, config } from "@/config";
+import { apiConfig, groq_config } from "@/config";
 import {
   GoogleApiImageSearchItem,
   GoogleImageSearchItem,
@@ -10,7 +10,7 @@ import {
 // Fetch search results from Google Search API
 export async function getSources(
   message: string,
-  numberOfPagesToScan = config.numberOfPagesToScan
+  numberOfPagesToScan = groq_config.numberOfPagesToScan
 ): Promise<SearchResult[]> {
   try {
     const gConfig = apiConfig.googleCustomSearch;

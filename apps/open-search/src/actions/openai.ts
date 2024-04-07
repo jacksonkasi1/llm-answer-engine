@@ -2,12 +2,12 @@ import { SearchResult, Streamable } from "@/types";
 import OpenAI from "openai";
 
 // ** import config
-import { config } from "@/config";
+import { groq_config } from "@/config";
 
 let openai: OpenAI;
 openai = new OpenAI({
-  baseURL: config.groqOpenAiBaseURL,
-  apiKey: config.inferenceAPIKey,
+  baseURL: groq_config.groqOpenAiBaseURL,
+  apiKey: groq_config.inferenceAPIKey,
 });
 
 // Generate follow-up questions using OpenAI API
@@ -40,7 +40,7 @@ export const relevantQuestions = async (
           )}. The original search query is: "The original search query".`,
         },
       ],
-      model: config.inferenceModel,
+      model: groq_config.inferenceModel,
       response_format: { type: "json_object" },
     });
   } catch (error) {
@@ -71,7 +71,7 @@ export async function chatCompletion(
         },
       ],
       stream: true,
-      model: config.inferenceModel,
+      model: groq_config.inferenceModel,
     });
 
     for await (const chunk of chatCompletion) {

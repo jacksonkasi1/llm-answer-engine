@@ -8,20 +8,20 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { ContentResult } from "@/types";
 
 // ** import config
-import { config } from "@/config";
+import { groq_config } from "@/config";
 
 let embeddings: OpenAIEmbeddings;
 embeddings = new OpenAIEmbeddings({
-  modelName: config.embeddingsModel,
+  modelName: groq_config.embeddingsModel,
 });
 
 //  Process and vectorize content using LangChain
 export async function processAndVectorizeContent(
   contents: ContentResult[],
   query: string,
-  textChunkSize = config.textChunkSize,
-  textChunkOverlap = config.textChunkOverlap,
-  numberOfSimilarityResults = config.numberOfSimilarityResults
+  textChunkSize = groq_config.textChunkSize,
+  textChunkOverlap = groq_config.textChunkOverlap,
+  numberOfSimilarityResults = groq_config.numberOfSimilarityResults
 ): Promise<DocumentInterface[]> {
   console.log("Process and vectorize content runs...🚀");
   try {

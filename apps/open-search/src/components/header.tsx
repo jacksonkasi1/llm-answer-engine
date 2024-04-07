@@ -49,7 +49,7 @@ export function Header() {
                 <Rabbit className="size-5" />
                 <div className="grid gap-0.5">
                   <p>
-                    Open AI{" "}
+                    Mixtral{" "}
                     <span className="font-medium text-foreground">Groq</span>
                   </p>
                   <p className="text-xs" data-description>
@@ -63,13 +63,13 @@ export function Header() {
                 <Bird className="size-5" />
                 <div className="grid gap-0.5">
                   <p>
-                    Open Models{" "}
+                    Workers AI{" "}
                     <span className="font-medium text-foreground">
                       Cloudflare
                     </span>
                   </p>
                   <p className="text-xs" data-description>
-                    Open Model runs on the Cloudflare Edge Network.
+                    Workers AI model runs on Cloudflare's global network
                   </p>
                 </div>
               </div>
