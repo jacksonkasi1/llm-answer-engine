@@ -72,7 +72,6 @@ export async function get10BlueLinksContents(
         const html = await response.text();
         const mainContent = extractMainContent(html);
         console.log(`✅ Successfully processed: ${source.link}`);
-        console.log(`📝 Main content: ${mainContent}`);
 
         return { ...source, html: mainContent }; // 'html' contains the cleaned main content
       } catch (error) {
