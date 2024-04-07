@@ -3,42 +3,25 @@
 // 1. Import Dependencies
 import { type AI } from "@/actions";
 import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
-import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components";
-import { IconArrowElbow } from "@repo/ui/icons";
 import { readStreamableValue, useActions } from "ai/rsc";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import Textarea from "react-textarea-autosize";
-
-import { Button } from "@repo/ui/components";
-
-// Custom components
-import FollowUpComponent from "@/components/answer/FollowUpComponent";
-import ImagesComponent from "@/components/answer/ImagesComponent";
-import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
-import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
-import UserMessageComponent from "@/components/answer/UserMessageComponent";
-import VideosComponent from "@/components/answer/VideosComponent";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ** import types
-import {
-  Message,
-  SearchResult,
-  StreamMessage
-} from "@/types";
+import { ChatInputForm } from "@/components/ChatInputForm";
+import MessagesList from "@/components/MessagesList";
+import { Message, SearchResult, StreamMessage } from "@/types";
 
 export default function Page() {
-
   // 3. Set up action that will be used to stream all the messages
   const { myAction } = useActions<typeof AI>();
-  // 4. Set up form submission handling
-  const { formRef, onKeyDown } = useEnterSubmit();
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [inputValue, setInputValue] = useState("hi");
+
   // 5. Set up state for the messages
   const [messages, setMessages] = useState<Message[]>([]);
   // 6. Set up state for the CURRENT LLM response (for displaying in the UI while streaming)
   const [currentLlmResponse, setCurrentLlmResponse] = useState("");
+
   // 7. Set up handler for when the user clicks on the follow up button
   const handleFollowUpClick = useCallback(async (question: string) => {
     setCurrentLlmResponse("");
@@ -68,21 +51,6 @@ export default function Page() {
     };
   }, [inputRef]);
 
-  // 9. Set up handler for when a submission is made, which will call the myAction function
-  const handleSubmit = async (message: string) => {
-    if (!message) return;
-    await handleUserMessageSubmission(message);
-  };
-
-  const handleFormSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {
-    e.preventDefault();
-    const messageToSend = inputValue.trim();
-    if (!messageToSend) return;
-    setInputValue("");
-    await handleSubmit(messageToSend);
-  };
 
   const handleUserMessageSubmission = async (
     userMessage: string,
@@ -153,110 +121,17 @@ export default function Page() {
 
   return (
     <div>
-      {messages.length > 0 && (
-        <div className="flex flex-col">
-          {messages.map((message, index) => (
-            <div key={`message-${index}`} className="flex flex-col md:flex-row">
-              <div className="w-full md:w-3/4 md:pr-2">
-                {message.searchResults && (
-                  <SearchResultsComponent
-                    key={`searchResults-${index}`}
-                    searchResults={message.searchResults}
-                  />
-                )}
-                {message.type === "userMessage" && (
-                  <UserMessageComponent message={message.userMessage} />
-                )}
-                <LLMResponseComponent
-                  llmResponse={message.content}
-                  currentLlmResponse={currentLlmResponse}
-                  index={index}
-                  key={`llm-response-${index}`}
-                />
-                {message.followUp && (
-                  <div className="flex flex-col">
-                    <FollowUpComponent
-                      key={`followUp-${index}`}
-                      followUp={message.followUp}
-                      handleFollowUpClick={handleFollowUpClick}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="w-full md:w-1/4 lg:pl-2">
-                {message.videos && (
-                  <VideosComponent
-                    key={`videos-${index}`}
-                    videos={message.videos}
-                  />
-                )}
-                {message.images && (
-                  <ImagesComponent
-                    key={`images-${index}`}
-                    images={message.images}
-                  />
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <MessagesList
+        messages={messages}
+        currentLlmResponse={currentLlmResponse}
+        handleFollowUpClick={handleFollowUpClick}
+      />
+
       <div className="pb-[80px] pt-4 md:pt-10">
         <ChatScrollAnchor trackVisibility={true} />
       </div>
-      <div className="fixed inset-x-0 bottom-0 w-full bg-gradient-to-b duration-300 ease-in-out animate-in dark:from-gray-900/10 dark:from-10% peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]] mb-4">
-        <div className="mx-auto sm:max-w-2xl sm:px-4">
-          <div className="px-4 py-2 space-y-4 border-t shadow-lg dark:bg-slate-800 bg-gray-100 rounded-full sm:border md:py-4">
-            <form
-              ref={formRef}
-              onSubmit={async (e: FormEvent<HTMLFormElement>) => {
-                e.preventDefault();
-                handleFormSubmit(e);
-                setCurrentLlmResponse("");
-                if (window.innerWidth < 600) {
-                  (e.target as HTMLFormElement)["message"]?.blur();
-                }
-                const value = inputValue.trim();
-                setInputValue("");
-                if (!value) return;
-              }}
-            >
-              <div className="relative flex flex-col w-full overflow-hidden max-h-60 grow dark:bg-slate-800 bg-gray-100 rounded-full sm:border sm:px-2">
-                <Textarea
-                  ref={inputRef}
-                  tabIndex={0}
-                  onKeyDown={onKeyDown}
-                  placeholder="Send a message."
-                  className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm dark:text-white text-black"
-                  autoFocus
-                  spellCheck={false}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  name="message"
-                  rows={1}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                />
-                <div className="absolute right-0 top-4 sm:right-4">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="submit"
-                        size="icon"
-                        disabled={inputValue === ""}
-                      >
-                        <IconArrowElbow />
-                        <span className="sr-only">Send message</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Send message</TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+
+      <ChatInputForm onMessageSubmit={handleUserMessageSubmission} />
     </div>
   );
 }
