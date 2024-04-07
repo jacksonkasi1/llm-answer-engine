@@ -18,7 +18,7 @@ export const ChatInputForm: React.FC<ChatInputFormProps> = ({
 }) => {
     const { formRef, onKeyDown } = useEnterSubmit();
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const [inputValue, setInputValue] = useState("");
+    const [inputValue, setInputValue] = useState("hello world");
 
     const handleFormSubmit = async (
         e: FormEvent<HTMLFormElement>,

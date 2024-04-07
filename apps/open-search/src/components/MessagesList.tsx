@@ -31,7 +31,6 @@ export const MessagesList: React.FC<MessagesListProps> = ({
                         <UserMessageComponent message={message.userMessage} />
                     )}
                     <LLMResponseComponent
-                        index={index}
                         llmResponse={message.content}
                         currentLlmResponse={currentLlmResponse}
                     />
