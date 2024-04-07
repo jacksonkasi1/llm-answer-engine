@@ -7,7 +7,7 @@ import { createAI, createStreamableValue } from "ai/rsc";
 // ** import action
 import {
   chatCompletion,
-  get10BlueLinksMarkdown,
+  get10BlueLinksContents,
   getImages,
   getSources,
   getVideos,
@@ -47,7 +47,7 @@ async function myAction(userMessage: string): Promise<any> {
       streamable.update({ searchResults: sources, images, videos });
 
       // Fetch and process webpage content into markdown
-      const websiteContent = await get10BlueLinksMarkdown(sources);
+      const websiteContent = await get10BlueLinksContents(sources);
       console.log("📝 Markdown conversion complete");
 
       // Vectorize the processed content for similarity search

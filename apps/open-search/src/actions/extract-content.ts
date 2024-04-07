@@ -1,77 +1,96 @@
-import { Readability } from "@mozilla/readability";
-import { JSDOM } from "jsdom";
-import TurndownService from "turndown";
+import cheerio from "cheerio";
 
 // ** import types
 import { ContentResult, SearchResult } from "@/types";
 
-// Helper function to create a timeout promise
-const timeoutPromise = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms, null));
-
-export const getMarkdownFromUrl = async (
-  url: string
-): Promise<string | null> => {
+/**
+ * Fetches content from a URL with a specified timeout.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit} options - Fetch options.
+ * @param {number} timeout - Timeout in milliseconds.
+ * @returns {Promise<Response>} - The fetch response.
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeout = 800
+): Promise<Response> {
   try {
-    // Create a fetch promise
-    const fetchPromise = fetch(url).then(async (response) => {
-      if (!response.ok) {
-        console.error("🚫 Failed to fetch the URL: ", url);
-        return null;
-      }
-      const downloadedPage = await response.text();
-      const doc = new JSDOM(downloadedPage, { url });
-      const reader = new Readability(doc.window.document);
-      const article = reader.parse();
-      const html = article?.content;
-      if (!html) {
-        console.error("📄 Failed to extract article content: ", url);
-        return null;
-      }
-      const turndownService = new TurndownService({
-        headingStyle: "atx",
-      });
-      return turndownService.turndown(html);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
     });
-
-    // Race the fetch operation against a timeout
-    const result = await Promise.race([
-      fetchPromise,
-      timeoutPromise(800), // Set timeout to 800ms
-    ]);
-
-    // If the result is null, it's either a timeout or fetch failed early
-    if (!result) {
-      console.log("⏰ Fetch operation timed out or failed: ", url);
-      return null;
-    }
-
-    console.log({ result });
-
-    return result as string;
+    clearTimeout(timeoutId);
+    return response;
   } catch (error) {
-    console.error("❌ An error occurred with URL: ", url, error);
-    return null;
+    console.log(
+      `🚫 Skipping ${url} due to error: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+    throw error;
   }
-};
+}
 
-export async function get10BlueLinksMarkdown(
+/**
+ * Extracts the main content from HTML using cheerio.
+ * @param {string} html - The HTML content.
+ * @returns {string} - The extracted main content as text.
+ */
+function extractMainContent(html: string): string {
+  try {
+    const $ = cheerio.load(html);
+    $("script, style, head, nav, footer, iframe, img").remove(); // Remove unnecessary elements
+    const mainContent = $("body").text().replace(/\s+/g, " ").trim(); // Clean up the text
+    return mainContent;
+  } catch (error) {
+    console.error("❌ Error extracting main content:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetches and processes the contents of top 10 search results.
+ * @param {SearchResult[]} sources - An array of search result objects.
+ * @returns {Promise<ContentResult[]>} - An array of content result objects.
+ */
+export async function get10BlueLinksContents(
   sources: SearchResult[]
 ): Promise<ContentResult[]> {
-  console.log("🕸️ Scraping top 10 web from sources");
-
   const promises = sources.map(
     async (source): Promise<ContentResult | null> => {
-      const markdown = await getMarkdownFromUrl(source.link);
-      if (!markdown) {
-        console.log("🚫 Skipped URL due to errors: ", source.link);
+      try {
+        console.log(`🌐 Fetching content for: ${source.link}`);
+        const response = await fetchWithTimeout(source.link);
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch ${source.link}. Status: ${response.status}`
+          );
+        }
+        const html = await response.text();
+        const mainContent = extractMainContent(html);
+        console.log(`✅ Successfully processed: ${source.link}`);
+        console.log(`📝 Main content: ${mainContent}`);
+
+        return { ...source, html: mainContent }; // 'html' contains the cleaned main content
+      } catch (error) {
+        console.log(`🚫 Error processing ${source.link}:`, error);
         return null;
       }
-      return { ...source, html: markdown };
     }
   );
 
-  const results = await Promise.all(promises);
-
-  return results.filter((result): result is ContentResult => result !== null);
+  try {
+    const results = await Promise.all(promises);
+    console.log(`📦 Processed ${results.length} results.`);
+    return results.filter((source): source is ContentResult => source !== null);
+  } catch (error) {
+    console.error(
+      "❌ Error fetching and processing blue links contents:",
+      error
+    );
+    throw error;
+  }
 }
