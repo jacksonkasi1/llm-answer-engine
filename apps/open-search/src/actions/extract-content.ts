@@ -13,7 +13,7 @@ import { ContentResult, SearchResult } from "@/types";
 async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
-  timeout = 800
+  timeout = 1800
 ): Promise<Response> {
   try {
     const controller = new AbortController();
@@ -26,11 +26,15 @@ async function fetchWithTimeout(
     return response;
   } catch (error) {
     console.log(
-      `🚫 Skipping ${url} due to error: ${
-        error instanceof Error ? error.message : "Unknown error"
+      `🚫 Skipping ${url} due to error:\n${
+        error instanceof Error ? error.message : "Timeout or network issue"
       }`
     );
-    throw error;
+    throw new Error(
+      `Fetch failed for ${url}:\n${
+        error instanceof Error ? error.message : "Timeout or network issue"
+      }`
+    );
   }
 }
 
@@ -42,12 +46,14 @@ async function fetchWithTimeout(
 function extractMainContent(html: string): string {
   try {
     const $ = cheerio.load(html);
-    $("script, style, head, nav, footer, iframe, img").remove(); // Remove unnecessary elements
-    const mainContent = $("body").text().replace(/\s+/g, " ").trim(); // Clean up the text
+    $("script, style, head, nav, footer, iframe, img").remove();
+    const mainContent = $("body").text().replace(/\s+/g, " ").trim();
     return mainContent;
   } catch (error) {
-    console.error("❌ Error extracting main content:", error);
-    throw error;
+    console.error(
+      `❌ Error extracting main content for HTML content:\n${error}`
+    );
+    throw new Error("Content extraction failed.");
   }
 }
 
@@ -65,17 +71,19 @@ export async function get10BlueLinksContents(
         console.log(`🌐 Fetching content for: ${source.link}`);
         const response = await fetchWithTimeout(source.link);
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch ${source.link}. Status: ${response.status}`
-          );
+          throw new Error(`HTTP status ${response.status}`);
         }
         const html = await response.text();
         const mainContent = extractMainContent(html);
         console.log(`✅ Successfully processed: ${source.link}`);
-
-        return { ...source, html: mainContent }; // 'html' contains the cleaned main content
+        return { ...source, html: mainContent };
       } catch (error) {
-        console.log(`🚫 Error processing ${source.link}:`, error);
+        console.log(
+          `🚫 Error with ${source.link}:\n${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
+
         return null;
       }
     }
@@ -83,13 +91,17 @@ export async function get10BlueLinksContents(
 
   try {
     const results = await Promise.all(promises);
-    console.log(`📦 Processed ${results.length} results.`);
-    return results.filter((source): source is ContentResult => source !== null);
+
+    const filterResults = results.filter(
+      (source): source is ContentResult => source !== null
+    );
+
+    console.log(`📦 Processed ${filterResults.length} results.`);
+    return filterResults;
   } catch (error) {
     console.error(
-      "❌ Error fetching and processing blue links contents:",
-      error
+      `❌ General error in processing. See logs for each URL:\n${error}`
     );
-    throw error;
+    throw new Error("Processing failed for one or more sources.");
   }
 }
