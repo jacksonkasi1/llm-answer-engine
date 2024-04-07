@@ -11,5 +11,3 @@ node_modules
 .vscode
 .idea
 config.md
-
-wrangler.toml
