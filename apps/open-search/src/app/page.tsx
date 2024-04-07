@@ -1,13 +1,10 @@
 "use client";
+
 // 1. Import Dependencies
 import { type AI } from "@/actions";
 import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@repo/ui/components";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components";
 import { IconArrowElbow } from "@repo/ui/icons";
 import { readStreamableValue, useActions } from "ai/rsc";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
@@ -22,47 +19,16 @@ import LLMResponseComponent from "@/components/answer/LLMResponseComponent";
 import SearchResultsComponent from "@/components/answer/SearchResultsComponent";
 import UserMessageComponent from "@/components/answer/UserMessageComponent";
 import VideosComponent from "@/components/answer/VideosComponent";
-// 2. Set up types
-interface SearchResult {
-  favicon: string;
-  link: string;
-  title: string;
-}
-interface Message {
-  id: number;
-  type: string;
-  content: string;
-  userMessage: string;
-  images: Image[];
-  videos: Video[];
-  followUp: FollowUp | null;
-  isStreaming: boolean;
-  searchResults?: SearchResult[];
-}
-interface StreamMessage {
-  searchResults?: any;
-  userMessage?: string;
-  llmResponse?: string;
-  llmResponseEnd?: boolean;
-  images?: any;
-  videos?: any;
-  followUp?: any;
-}
-interface Image {
-  link: string;
-}
-interface Video {
-  link: string;
-  imageUrl: string;
-}
-interface FollowUp {
-  choices: {
-    message: {
-      content: string;
-    };
-  }[];
-}
+
+// ** import types
+import {
+  Message,
+  SearchResult,
+  StreamMessage
+} from "@/types";
+
 export default function Page() {
+
   // 3. Set up action that will be used to stream all the messages
   const { myAction } = useActions<typeof AI>();
   // 4. Set up form submission handling
@@ -78,6 +44,7 @@ export default function Page() {
     setCurrentLlmResponse("");
     await handleUserMessageSubmission(question);
   }, []);
+
   // 8. For the form submission, we need to set up a handler that will be called when the user submits the form
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,11 +67,13 @@ export default function Page() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [inputRef]);
+
   // 9. Set up handler for when a submission is made, which will call the myAction function
   const handleSubmit = async (message: string) => {
     if (!message) return;
     await handleUserMessageSubmission(message);
   };
+
   const handleFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -114,6 +83,7 @@ export default function Page() {
     setInputValue("");
     await handleSubmit(messageToSend);
   };
+
   const handleUserMessageSubmission = async (
     userMessage: string,
   ): Promise<void> => {
@@ -130,8 +100,10 @@ export default function Page() {
       isStreaming: true,
       searchResults: [] as SearchResult[],
     };
+
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     let lastAppendedResponse = "";
+
     try {
       const streamableValue = await myAction(userMessage);
       let llmResponseString = "";
@@ -178,6 +150,7 @@ export default function Page() {
       console.error("Error streaming data for user message:", error);
     }
   };
+
   return (
     <div>
       {messages.length > 0 && (
