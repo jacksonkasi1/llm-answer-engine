@@ -11,10 +11,6 @@ import { Ai } from "@cloudflare/ai";
 // ** import types
 import { ChatMessage } from "@/types";
 
-export const config = {
-  runtime: "edge",
-};
-
 export const runtime = "edge";
 
 type EnvConfig = {
