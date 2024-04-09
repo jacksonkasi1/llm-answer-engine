@@ -7,7 +7,7 @@ export const groq_config = {
   textChunkSize: 1000,
   textChunkOverlap: 400,
   numberOfSimilarityResults: 4, // Number of similarity results to return per page
-  numberOfPagesToScan: 10,
+  numberOfPagesToScan: 4,
   groqOpenAiBaseURL: "https://api.groq.com/openai/v1", //Groq: https://api.groq.com/openai/v1
 };
 
@@ -23,7 +23,7 @@ export const openai_config = {
 };
 
 export const worker_config = {
-  interfaceModel: "@hf/thebloke/llama-2-13b-chat-awq",
+  interfaceModel: "@cf/mistral/mistral-7b-instruct-v0.1",
   embeddingsModel: "text-embedding-3-small",
   textChunkSize: 1000,
   textChunkOverlap: 400,

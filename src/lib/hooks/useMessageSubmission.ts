@@ -89,7 +89,7 @@ export const useMessageSubmission = () => {
         console.error("🔴 Error streaming data for user message:", error);
       }
     },
-    [myAction, setMessages, setCurrentLlmResponse]
+    [model, myAction, setMessages, setCurrentLlmResponse]
   );
 
   return { handleUserMessageSubmission };

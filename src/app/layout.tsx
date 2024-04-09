@@ -89,4 +89,4 @@ export default function RootLayout({
   );
 }
 
-// export const runtime = 'edge' // enable edge runtime on deployment
+export const runtime = 'edge' // enable edge runtime on deployment
