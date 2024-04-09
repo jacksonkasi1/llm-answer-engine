@@ -21,3 +21,12 @@ export const openai_config = {
   numberOfPagesToScan: 10,
   groqOpenAiBaseURL: "https://api.groq.com/openai/v1", // OpenAI: https://api.openai.com/v1
 };
+
+export const worker_config = {
+  interfaceModel: "@hf/thebloke/llama-2-13b-chat-awq",
+  embeddingsModel: "text-embedding-3-small",
+  textChunkSize: 1000,
+  textChunkOverlap: 400,
+  numberOfSimilarityResults: 4, // Number of similarity results to return per page
+  numberOfPagesToScan: 10,
+};
