@@ -23,7 +23,7 @@ export const openai_config = {
 };
 
 export const worker_config = {
-  interfaceModel: "@cf/mistral/mistral-7b-instruct-v0.1",
+  interfaceModel: "@hf/thebloke/llama-2-13b-chat-awq",
   embeddingsModel: "text-embedding-3-small",
   textChunkSize: 1000,
   textChunkOverlap: 400,

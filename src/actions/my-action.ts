@@ -60,6 +60,7 @@ async function myAction(userMessage: string, modal: ModelValue): Promise<any> {
       console.log("🔎 Vectorization and similarity search complete");
 
       console.log("🤖 AI Model: " + modal);
+
       // Perform chat completion with vectorized results
       if (modal === "cloudflare") {
         await cloudflareChatCompletion(userMessage, vectorResults, streamable);
@@ -77,6 +78,7 @@ async function myAction(userMessage: string, modal: ModelValue): Promise<any> {
       } else {
         followUp = await relevantQuestions(sources);
       }
+
       streamable.update({ followUp: followUp });
       console.log("❓ Relevant questions updated");
 

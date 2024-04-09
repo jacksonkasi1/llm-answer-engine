@@ -9,10 +9,11 @@ export const relevantQuestionsCloudflare = async (
   try {
     const ai = new Ai(getRequestContext().env.AI);
 
-    // Constructing the system message to instruct the AI
-    const systemMessage = {
-      role: "system",
-      content: `
+    // Define the messages for the chat completion
+    const messages: ChatMessage[] = [
+      {
+        role: "system",
+        content: `
         You are a Question generator who generates an array of 3 follow-up questions in JSON format.
         The JSON schema should include:
         {
@@ -24,19 +25,18 @@ export const relevantQuestionsCloudflare = async (
           ]
         }
         `,
-    };
-
-    // User message that prompts the AI to generate follow-up questions based on search results
-    const userMessage = {
-      role: "user",
-      content: `Generate follow-up questions based on the top results from a similarity search: ${JSON.stringify(
-        sources
-      )}. The original search query is: "The original search query".`,
-    };
+      },
+      {
+        role: "user",
+        content: `Generate follow-up questions based on the top results from a similarity search: ${JSON.stringify(
+          sources
+        )}. The original search query is: "The original search query".`,
+      },
+    ];
 
     // Execute the chat completion with the Cloudflare AI
-    const response = await ai.run("@cf/mistral/mistral-7b-instruct-v0.1", {
-      messages: [systemMessage, userMessage],
+    const response = await ai.run("@cf/meta/llama-2-7b-chat-int8", {
+      messages,
     });
 
     console.log("✅ Follow-up questions generated successfully.");
@@ -48,7 +48,7 @@ export const relevantQuestionsCloudflare = async (
       "🛑 Error generating follow-up questions with Cloudflare AI:",
       error
     );
-    throw error; // Rethrow or handle the error appropriately
+    throw error;
   }
 };
 
@@ -75,7 +75,7 @@ export async function cloudflareChatCompletion(
       },
     ];
 
-    const stream = (await ai.run("@cf/mistral/mistral-7b-instruct-v0.1", {
+    const stream = (await ai.run("@cf/meta/llama-2-7b-chat-fp16", {
       messages,
       stream: true,
     })) as ReadableStream<Uint8Array>;

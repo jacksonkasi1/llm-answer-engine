@@ -16,7 +16,7 @@ export const relevantQuestions = async (
 ): Promise<any> => {
   console.log("Generate follow-up questions runs...🚀");
   try {
-    return await openai.chat.completions.create({
+    const response = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
@@ -43,6 +43,9 @@ export const relevantQuestions = async (
       model: groq_config.inferenceModel,
       response_format: { type: "json_object" },
     });
+
+    return response;
+    // return response.choices[0].message?.content
   } catch (error) {
     console.error("Error generating follow-up questions:", error);
     throw error;

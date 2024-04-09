@@ -1,61 +1,75 @@
 import React from 'react';
 
-// 1. TypeScript Interface for FollowUp
-interface FollowUp {
+interface FollowUpGroq {
     choices: {
         message: {
-            content: string; // Assuming content is a JSON string that can be parsed to an object with a followUp property
+            content: string; // JSON string for Groq
         };
     }[];
 }
 
-// 2. TypeScript Props Definition
 interface FollowUpComponentProps {
-    followUp: FollowUp;
+    followUp: FollowUpGroq | string; // Direct string from Cloudflare AI or object from Groq
     handleFollowUpClick: (question: string) => void;
 }
 
-// 3. FollowUpComponent Functional Component
-const FollowUpComponent: React.FC<FollowUpComponentProps> = ({ followUp, handleFollowUpClick }) => {
-    // Handler when a follow-up question is clicked
+const FollowUpComponent: React.FC<FollowUpComponentProps> = ({
+    followUp,
+    handleFollowUpClick,
+}) => {
     const handleQuestionClick = (question: string) => {
-        console.log(`🔍 Selected follow-up question: ${question}`);
         handleFollowUpClick(question);
     };
 
-    // Safely parse JSON content and return null if parsing fails
-    const safeParseJSON = (content: string) => {
-        try {
-            return JSON.parse(content);
-        } catch (error) {
-            console.error(`🚨 Error parsing JSON content: ${error}`);
-            return null;
+    // Function to parse follow-up questions from both models
+    const parseFollowUpQuestions = (input: FollowUpGroq | string): string[] => {
+        if (typeof input === 'string') {
+            // Direct string from Cloudflare AI
+            return input
+                .split("\n")
+                .slice(1)
+                .map(line => line.trim().substring(3).trim());
+        } else {
+            // Groq model follow-up questions stored in JSON format
+            try {
+                const parsed = JSON.parse(input.choices[0].message.content);
+                if (parsed.followUp) {
+                    return parsed.followUp;
+                }
+            } catch (error) {
+                console.error("Error parsing Groq follow-up questions:", error);
+            }
         }
+        return [];
     };
 
-    const parsedContent = safeParseJSON(followUp.choices[0].message.content);
-    const followUpQuestions = parsedContent ? parsedContent.followUp : [];
+    const followUpQuestions = parseFollowUpQuestions(followUp);
 
     return (
-        <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg p-4 mt-4">
-            <div className="flex items-center">
-                <h2 className="text-lg font-semibold flex-grow dark:text-white text-black">Relevant</h2>
-                <img src="./mistral.png" alt="mistral logo" className='w-6 h-6 mr-2' />
-                <img src="./groq.png" alt="groq logo" className='w-6 h-6' />
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden mt-4">
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-500 p-4">
+                <h2 className="text-lg font-semibold text-white">
+                    Relevant Questions
+                </h2>
             </div>
-            <ul className="mt-2">
-                {followUpQuestions.map((question: string, index: number) => (
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                {followUpQuestions.map((question, index) => (
                     <li
                         key={index}
-                        className="flex items-center mt-2 cursor-pointer"
+                        className="flex items-center p-4 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-150"
                         onClick={() => handleQuestionClick(question)}
                     >
-                        <span role="img" aria-label="link" className="mr-2 dark:text-white text-black">🔗</span>
-                        <p className="dark:text-white text-black hover:underline">{question}</p>
+                        <span role="img" aria-label="link" className="mr-2 text-cyan-500 dark:text-cyan-400">
+                            🔗
+                        </span>
+                        <p className="flex-1 text-gray-900 dark:text-white">
+                            {question}
+                        </p>
                     </li>
                 ))}
             </ul>
         </div>
+
     );
 };
 
