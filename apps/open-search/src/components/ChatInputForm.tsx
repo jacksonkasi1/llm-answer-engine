@@ -1,13 +1,19 @@
-import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
+import React, { FormEvent, useRef, useState } from "react";
+
+// ** import third-party dependencies
+import Textarea from "react-textarea-autosize";
+
+// ** import components
+import { Button } from "@/components/ui/button";
+import { IconArrowElbow } from "@/components/ui/icons";
 import {
-    Button,
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from "@repo/ui/components";
-import { IconArrowElbow } from "@repo/ui/icons";
-import React, { FormEvent, useRef, useState } from "react";
-import Textarea from "react-textarea-autosize";
+} from "@/components/ui/tooltip";
+
+// ** import hooks
+import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 
 interface ChatInputFormProps {
     onMessageSubmit: (message: string) => Promise<void>;

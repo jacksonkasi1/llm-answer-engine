@@ -1,4 +1,4 @@
-import { Toaster } from "@repo/ui/components";
+import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -89,4 +89,4 @@ export default function RootLayout({
   );
 }
 
-export const runtime = 'edge' // enable edge runtime on deployment
+// export const runtime = 'edge' // enable edge runtime on deployment
