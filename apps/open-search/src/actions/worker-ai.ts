@@ -41,16 +41,19 @@ export async function cloudflareChatCompletion(
           break;
         }
 
-        // Decode the stream chunk to text
         const chunkText = new TextDecoder("utf-8").decode(value);
-        // Process each line in case the chunk contains multiple SSE messages
         const lines = chunkText.split("\n");
         for (const line of lines) {
           if (line.startsWith("data:")) {
+            const dataString = line.substring(5).trim(); // Trim the whitespace
+            if (dataString === "[DONE]") {
+              // Handle the special "[DONE]" message
+              console.log("✅ Stream completion marker received.");
+              continue; // Skip the rest of the loop for this line
+            }
             try {
-              const data = JSON.parse(line.substring(5)); // Remove 'data: ' prefix and parse JSON
+              const data = JSON.parse(dataString);
               if (data.response) {
-                // Send each piece of response data as soon as it's received
                 streamable.update({ llmResponse: data.response });
               }
             } catch (parseError) {
