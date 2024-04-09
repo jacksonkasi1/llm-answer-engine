@@ -1,81 +1,137 @@
-# Turborepo starter
+# Perplexity-Inspired LLM Answer Engine
 
-This is an official starter Turborepo.
+[Watch the tutorial here](https://youtu.be/kFC-OWw7G8k) for a detailed guide on setting up and running this project.
 
-## Using this example
+![Example](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmJ0ZnhmNjkwYzczZDlqZzM1dDRka2k1MGx6dW02ZHl5dzV0aGQwMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mluzeYSMGoAnSXg0ft/giphy.gif)
 
-Run the following command:
+This repository contains the code and instructions needed to build a sophisticated answer engine that leverages the capabilities of [Groq](https://www.groq.com/), [Mistral AI's Mixtral](https://mistral.ai/news/mixtral-of-experts/), [Langchain.JS](https://js.langchain.com/docs/), [Brave Search](https://search.brave.com/), [Serper API](https://serper.dev/), and [OpenAI](https://openai.com/). Designed to efficiently return sources, answers, images, videos, and follow-up questions based on user queries, this project is an ideal starting point for developers interested in natural language processing and search technologies.
 
-```sh
-npx create-turbo@latest
+## Technologies Used
+
+- **Next.js**: A React framework for building server-side rendered and static web applications.
+- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces.
+- **Vercel AI SDK**: The Vercel AI SDK is a library for building AI-powered streaming text and chat UIs.
+- **Groq & Mixtral**: Technologies for processing and understanding user queries.
+- **Langchain.JS**: A JavaScript library focused on text operations, such as text splitting and embeddings.
+- **Brave Search**: A privacy-focused search engine used for sourcing relevant content and images.
+- **Serper API**: Used for fetching relevant video and image results based on the user's query.
+- **OpenAI Embeddings**: Used for creating vector representations of text chunks.
+- **Cheerio**: Utilized for HTML parsing, allowing the extraction of content from web pages.
+- **Ollama (Optional)**: Used for streaming inference and embeddings.
+
+## Getting Started
+
+### Prerequisites
+
+- Ensure Node.js and npm are installed on your machine.
+- Obtain API keys from OpenAI, Groq, Brave Search, and Serper.
+
+### Obtaining API Keys
+
+- **OpenAI API Key**: [Generate your OpenAI API key here](https://platform.openai.com/account/api-keys).
+- **Groq API Key**: [Get your Groq API key here](https://console.groq.com/keys).
+- **Brave Search API Key**: [Obtain your Brave Search API key here](https://brave.com/search/api/).
+- **Serper API Key**: [Get your Serper API key here](https://serper.dev/).
+
+### Installation
+
+1. Clone the repository:
+    ```
+    git clone https://github.com/developersdigest/llm-answer-engine.git
+    ```
+2. Install the required dependencies:
+    ```
+    npm install
+    ```
+    or
+    ```
+    bun install
+    ```
+3. Create a `.env` file in the root of your project and add your API keys:
+    ```
+    OPENAI_API_KEY=your_openai_api_key
+    GROQ_API_KEY=your_groq_api_key
+    BRAVE_SEARCH_API_KEY=your_brave_search_api_key
+    SERPER_API=your_serper_api_key
+    ```
+
+### Running the Server
+
+To start the server, execute:
+```
+npm run dev
+```
+or
+```
+bun run dev
 ```
 
-## What's inside?
+the server will be listening on the specified port.
 
-This Turborepo includes the following packages/apps:
+## Editing the Configuration
 
-### Apps and Packages
+The configuration file is located in the `app/config.tsx` file. You can modify the following values
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- useOllamaInference: false,
+- useOllamaEmbeddings: false,
+- inferenceModel: 'mixtral-8x7b-32768', 
+- inferenceAPIKey: process.env.GROQ_API_KEY, 
+- embeddingsModel: 'text-embedding-3-small', 
+- textChunkSize: 800, 
+- textChunkOverlap: 200, 
+- numberOfSimilarityResults: 2,
+- numberOfPagesToScan: 10, 
+- nonOllamaBaseURL: 'https://api.groq.com/openai/v1'
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Ollama Support (Partially supported)
+Currently, streaming text responses are supported for Ollama, but follow-up questions are not yet supported.
 
-### Utilities
+Embeddings are supported, however, time-to-first-token can be quite long when using both a local embedding model as well as a local model for the streaming inference. I  recommended decreasing a number of the RAG values specified in the `app/config.tsx` file to decrease the time-to-first-token when using Ollama.
 
-This Turborepo has some additional tools already setup for you:
+To get started, make sure you have the Ollama running model on your local machine and set within the config the model you would like to use and set use OllamaInference and/or useOllamaEmbeddings to true.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+Note: When 'useOllamaInference' is set to true, the model will be used for both text generation, but it will skip the follow-up questions inference step when using Ollama.
 
-### Build
+More info: https://ollama.com/blog/openai-compatibility
 
-To build all apps and packages, run the following command:
+### Roadmap
 
-```
-cd my-turborepo
-pnpm build
-```
+- [In progress] Add support for dynamic and conditionally rendered UI components based on the user's query
 
-### Develop
+![Example](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN284d3p5azAyNHpubm9mb2F0cnB6MWdtcTdnd2Nkb2d1ZnRtMG0yYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OMpt8ZbBsjphZz6mue/giphy.gif)
 
-To develop all apps and packages, run the following command:
+- [] Add a settings component to allow users to select the model, embeddings model, and other parameters from the UI
+- [] Add support for follow-up questions when using Ollama
+- [Completed] Add dark mode support based on the user's system preference
 
-```
-cd my-turborepo
-pnpm dev
-```
+![Example](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDQxdHR0NWc4MHl6cDBsNmpiMGNyeWNwbnE4MjZlb29oZGRsODBhMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QjINYAx6le5PMY020A/giphy.gif)
 
-### Remote Caching
+### Backend + Node Only Express API
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+![Build a Perplexity-Inspired Answer Engine Using Groq, Mixtral, Langchain, Brave & OpenAI in 10 Min](https://img.youtube.com/vi/43ZCeBTcsS8/0.jpg)
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+In addition to the Next.JS version of the project, there is a backend only version that uses Node.js and Express. Which is located in the 'original-express-api' directory. This is a standalone version of the project that can be used as a reference for building a similar API. There is also a readme file in the 'original-express-api' directory that explains how to run the backend version.
 
-```
-cd my-turborepo
-npx turbo login
-```
+[Watch the express tutorial here](https://youtu.be/43ZCeBTcsS8) for a detailed guide on setting up and running this project. 
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Contributing
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Contributions to the project are welcome. Feel free to fork the repository, make your changes, and submit a pull request. You can also open issues to suggest improvements or report bugs.
 
-```
-npx turbo link
-```
 
-## Useful Links
+## License
 
-Learn more about the power of Turborepo:
+This project is licensed under the MIT License.
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+[![Star History Chart](https://api.star-history.com/svg?repos=developersdigest/llm-answer-engine&type=Date)](https://star-history.com/#developersdigest/llm-answer-engine&Date)
+
+I'm the developer behind Developers Digest. If you find my work helpful or enjoy what I do, consider supporting me. Here are a few ways you can do that:
+
+- **Patreon**: Support me on Patreon at [patreon.com/DevelopersDigest](https://www.patreon.com/DevelopersDigest)
+- **Buy Me A Coffee**: You can buy me a coffee at [buymeacoffee.com/developersdigest](https://www.buymeacoffee.com/developersdigest)
+- **Website**: Check out my website at [developersdigest.tech](https://developersdigest.tech)
+- **Github**: Follow me on GitHub at [github.com/developersdigest](https://github.com/developersdigest)
+- **Twitter**: Follow me on Twitter at [twitter.com/dev__digest](https://twitter.com/dev__digest)
+
+
+https://www.youtube.com/watch?v=D4tWHX2nCzQ
