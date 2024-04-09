@@ -1,111 +1,76 @@
-// 1. Import the 'useState' and 'useEffect' hooks from React
-import { useState, useEffect } from 'react';
+import { SearchResult } from "@/types";
+import { useEffect, useState } from "react";
 
-// 2. Define the 'SearchResult' interface with properties for 'favicon', 'link', and 'title'
-export interface SearchResult {
-    favicon: string;
-    link: string;
-    title: string;
-}
-
-// 3. Define the 'SearchResultsComponentProps' interface with a 'searchResults' property of type 'SearchResult[]'
 export interface SearchResultsComponentProps {
     searchResults: SearchResult[];
 }
 
-// 4. Define the 'SearchResultsComponent' functional component that takes 'searchResults' as a prop
-const SearchResultsComponent = ({ searchResults }: { searchResults: SearchResult[] }) => {
-    // 5. Use the 'useState' hook to manage the 'isExpanded' and 'loadedFavicons' state
+const SearchResultsComponent = ({
+    searchResults,
+}: SearchResultsComponentProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [loadedFavicons, setLoadedFavicons] = useState<boolean[]>([]);
 
-    // 6. Use the 'useEffect' hook to initialize the 'loadedFavicons' state based on the 'searchResults' length
     useEffect(() => {
         setLoadedFavicons(Array(searchResults.length).fill(false));
     }, [searchResults]);
 
-    // 7. Define the 'toggleExpansion' function to toggle the 'isExpanded' state
     const toggleExpansion = () => setIsExpanded(!isExpanded);
-
-    // 8. Define the 'visibleResults' variable to hold the search results to be displayed based on the 'isExpanded' state
     const visibleResults = isExpanded ? searchResults : searchResults.slice(0, 3);
 
-    // 9. Define the 'handleFaviconLoad' function to update the 'loadedFavicons' state when a favicon is loaded
     const handleFaviconLoad = (index: number) => {
-        setLoadedFavicons((prevLoadedFavicons) => {
-            const updatedLoadedFavicons = [...prevLoadedFavicons];
-            updatedLoadedFavicons[index] = true;
-            return updatedLoadedFavicons;
+        setLoadedFavicons((prev) => {
+            const updated = [...prev];
+            updated[index] = true;
+            return updated;
         });
     };
 
-    // 10. Define the 'SearchResultsSkeleton' component to render a loading skeleton
-    const SearchResultsSkeleton = () => (
-        <>
-            {Array.from({ length: isExpanded ? searchResults.length : 3 }).map((_, index) => (
-                <div key={index} className="p-2 w-full sm:w-1/2 md:w-1/4">
-                    <div className="flex items-center space-x-2 dark:bg-slate-700 bg-gray-100 p-3 rounded-lg h-full">
-                        <div className="w-5 h-5 dark:bg-slate-600 bg-gray-400 rounded animate-pulse"></div>
-                        <div className="w-full h-4 dark:bg-slate-600 bg-gray-400 rounded animate-pulse"></div>
-                    </div>
-                </div>
-            ))}
-        </>
-    );
-
-    // 11. Render the 'SearchResultsComponent'
     return (
-        <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg p-4 mt-4">
-            <div className="flex items-center">
-                <h2 className="text-lg font-semibold flex-grow dark:text-white text-black">Sources</h2>
-                <img src="./brave.png" alt="brave logo" className="w-6 h-6" />
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden my-4">
+            <div className="px-4 py-2 bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white">Search Results</h2>
+                <button
+                    onClick={toggleExpansion}
+                    className="bg-white dark:bg-gray-700 text-blue-500 dark:text-teal-300 rounded-md px-3 py-1 text-sm font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                    {isExpanded ? "Show Less" : `View More (${searchResults.length - 3})`}
+                </button>
             </div>
-            <div className="flex flex-wrap my-2">
-                {searchResults.length === 0 ? (
-                    // 12. Render the 'SearchResultsSkeleton' if there are no search results
-                    <SearchResultsSkeleton />
-                ) : (
-                    // 13. Render the search results with favicon, title, and link
-                    visibleResults.map((result, index) => (
-                        <div key={index} className="p-2 w-full sm:w-1/2 md:w-1/4">
-                            <div className="flex items-center space-x-2 dark:bg-slate-700 bg-gray-100 p-3 rounded-lg h-full">
-                                {!loadedFavicons[index] && (
-                                    <div className="w-5 h-5 dark:bg-slate-600 bg-gray-400 rounded animate-pulse"></div>
-                                )}
-                                <img
-                                    src={result.favicon}
-                                    alt="favicon"
-                                    className={`w-5 h-5 ${loadedFavicons[index] ? 'block' : 'hidden'}`}
-                                    onLoad={() => handleFaviconLoad(index)}
-                                />
-                                <a href={result.link} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold truncate dark:text-gray-200 dark:hover:text-white text-gray-700 hover:text-black">
-                                    {result.title}
-                                </a>
-                            </div>
-                        </div>
-                    ))
-                )}
-                {/* 14. Render a button to toggle the expansion of search results */}
-                <div className="w-full sm:w-full md:w-1/4 p-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                {visibleResults.map((result, index) => (
                     <div
-                        onClick={toggleExpansion}
-                        className="flex items-center space-x-2 dark:bg-slate-700 bg-gray-100 p-3 rounded-lg cursor-pointer h-12 justify-center"
+                        key={index}
+                        className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                     >
-                        {!isExpanded ? (
-                            <>
-                                {searchResults.slice(0, 3).map((result, index) => (
-                                    <img key={index} src={result.favicon} alt="favicon" className="w-4 h-4" />
-                                ))}
-                                <span className="text-sm font-semibold dark:text-gray-200 text-gray-700">View more</span>
-                            </>
-                        ) : (
-                            <span className="text-sm font-semibold dark:text-gray-200 text-gray-700">Show Less</span>
+                        <img
+                            src={result.favicon}
+                            alt="favicon"
+                            className="w-6 h-6 rounded-full"
+                            onLoad={() => handleFaviconLoad(index)}
+                            style={{ display: loadedFavicons[index] ? "block" : "none" }}
+                        />
+                        {!loadedFavicons[index] && (
+                            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-500 rounded-full animate-pulse"></div>
                         )}
+                        <div className="flex-grow">
+                            <a
+                                href={result.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-gray-900 dark:text-white hover:underline"
+                            >
+                                {result.title}
+                            </a>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                {result.snippet}
+                            </p>
+                        </div>
                     </div>
-                </div>
+                ))}
             </div>
         </div>
-    )
+    );
 };
 
 export default SearchResultsComponent;
