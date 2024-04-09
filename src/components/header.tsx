@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { modelAtom } from "@/store";
+import { ModelValue } from "@/types";
 import { useAtom } from "jotai";
 
 const GitHubIcon = () => {
@@ -29,7 +30,7 @@ const GitHubIcon = () => {
 export function Header() {
   const [modal, setModel] = useAtom(modelAtom);
 
-  const handleModelChange = (value: string) => {
+  const handleModelChange = (value: ModelValue) => {
     setModel(value);
   };
 

@@ -14,10 +14,11 @@ import {
   getVideos,
   processAndVectorizeContent,
   relevantQuestions,
+  relevantQuestionsCloudflare,
 } from "@/actions";
 
 // ** import types
-import { initialAIState, initialUIState } from "@/types";
+import { ModelValue, initialAIState, initialUIState } from "@/types";
 
 /**
  * Orchestrates fetching and processing web content based on a user's message.
@@ -27,7 +28,7 @@ import { initialAIState, initialUIState } from "@/types";
  * @param {string} userMessage - The user's query or message input.
  * @returns {Promise<any>} - A promise that resolves to the final state of the streamable content.
  */
-async function myAction(userMessage: string): Promise<any> {
+async function myAction(userMessage: string, modal: ModelValue): Promise<any> {
   "use server";
   // Initialize streamable state for dynamic updates
   const streamable = createStreamableValue({});
@@ -59,14 +60,22 @@ async function myAction(userMessage: string): Promise<any> {
       console.log("🔎 Vectorization and similarity search complete");
 
       // Perform chat completion with vectorized results
-      if (false) await chatCompletion(userMessage, vectorResults, streamable);
-
-      await cloudflareChatCompletion(userMessage, vectorResults, streamable);
+      if (modal === "cloudflare") {
+        await cloudflareChatCompletion(userMessage, vectorResults, streamable);
+      } else {
+        await chatCompletion(userMessage, vectorResults, streamable);
+      }
 
       console.log("💬 Chat completion processed");
 
       // Fetch relevant follow-up questions based on the sources
-      const followUp = await relevantQuestions(sources);
+      let followUp;
+
+      if (modal === "cloudflare") {
+        followUp = await relevantQuestionsCloudflare(sources);
+      } else {
+        followUp = await relevantQuestions(sources);
+      }
       streamable.update({ followUp: followUp });
       console.log("❓ Relevant questions updated");
 

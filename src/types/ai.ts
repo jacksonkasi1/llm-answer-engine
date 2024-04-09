@@ -1,3 +1,6 @@
+// Define a type for the model values
+export type ModelValue = "groq" | "cloudflare";
+
 export interface ChatMessage {
   role: "system" | "user";
   content: string;

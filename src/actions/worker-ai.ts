@@ -1,6 +1,56 @@
-import { ChatMessage, Streamable } from "@/types";
+import { ChatMessage, SearchResult, Streamable } from "@/types";
 import { Ai } from "@cloudflare/ai";
 import { getRequestContext } from "@cloudflare/next-on-pages";
+
+export const relevantQuestionsCloudflare = async (
+  sources: SearchResult[]
+): Promise<any> => {
+  console.log("🚀 Generate follow-up questions with Cloudflare AI...");
+  try {
+    const ai = new Ai(getRequestContext().env.AI);
+
+    // Constructing the system message to instruct the AI
+    const systemMessage = {
+      role: "system",
+      content: `
+        You are a Question generator who generates an array of 3 follow-up questions in JSON format.
+        The JSON schema should include:
+        {
+          "original": "The original search query or context",
+          "followUp": [
+            "Question 1",
+            "Question 2", 
+            "Question 3"
+          ]
+        }
+        `,
+    };
+
+    // User message that prompts the AI to generate follow-up questions based on search results
+    const userMessage = {
+      role: "user",
+      content: `Generate follow-up questions based on the top results from a similarity search: ${JSON.stringify(
+        sources
+      )}. The original search query is: "The original search query".`,
+    };
+
+    // Execute the chat completion with the Cloudflare AI
+    const response = await ai.run("@cf/mistral/mistral-7b-instruct-v0.1", {
+      messages: [systemMessage, userMessage],
+    });
+
+    console.log("✅ Follow-up questions generated successfully.");
+    console.log({ response });
+
+    return response;
+  } catch (error) {
+    console.error(
+      "🛑 Error generating follow-up questions with Cloudflare AI:",
+      error
+    );
+    throw error; // Rethrow or handle the error appropriately
+  }
+};
 
 export async function cloudflareChatCompletion(
   userMessage: string,
@@ -25,7 +75,7 @@ export async function cloudflareChatCompletion(
       },
     ];
 
-    const stream = (await ai.run("@cf/meta/llama-2-7b-chat-fp16", {
+    const stream = (await ai.run("@cf/mistral/mistral-7b-instruct-v0.1", {
       messages,
       stream: true,
     })) as ReadableStream<Uint8Array>;

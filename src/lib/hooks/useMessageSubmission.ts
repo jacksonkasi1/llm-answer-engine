@@ -4,7 +4,7 @@ import { readStreamableValue, useActions } from "ai/rsc";
 import { useAtom } from "jotai";
 
 // ** import store
-import { currentLlmResponseAtom, messagesAtom } from "@/store";
+import { currentLlmResponseAtom, messagesAtom, modelAtom } from "@/store";
 
 // ** import actions
 import { AI } from "@/actions";
@@ -15,6 +15,7 @@ import { SearchResult, StreamMessage } from "@/types";
 export const useMessageSubmission = () => {
   const { myAction } = useActions<typeof AI>();
 
+  const [model] = useAtom(modelAtom);
   const [, setMessages] = useAtom(messagesAtom);
   const [, setCurrentLlmResponse] = useAtom(currentLlmResponseAtom);
 
@@ -29,6 +30,7 @@ export const useMessageSubmission = () => {
         id: newMessageId,
         type: "userMessage",
         userMessage: userMessage,
+        model: model,
         content: "",
         images: [],
         videos: [],

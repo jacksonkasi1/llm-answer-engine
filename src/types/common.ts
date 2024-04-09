@@ -1,3 +1,4 @@
+import { ModelValue } from "./ai";
 import {
   GoogleImageSearchItem,
   ScraperVideoResult,
@@ -9,6 +10,7 @@ export interface Message {
   type: string;
   content: string;
   userMessage: string;
+  model: ModelValue;
   images: GoogleImageSearchItem[];
   videos: ScraperVideoResult[];
   followUp: FollowUp | null;
