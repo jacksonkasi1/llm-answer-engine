@@ -43,7 +43,7 @@ export const useMessageSubmission = () => {
       let lastAppendedResponse = "";
 
       try {
-        const streamableValue = await myAction(userMessage);
+        const streamableValue = await myAction(userMessage, model);
         let llmResponseString = "";
 
         for await (const message of readStreamableValue(streamableValue)) {
