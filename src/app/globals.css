@@ -57,13 +57,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/*  Additional global styles (usually in your CSS or Tailwind CSS setup) */
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-.animate-blink {
-  animation: blink 1s step-start 0s infinite;
-}
