@@ -12,3 +12,8 @@ node_modules
 .idea
 config.md
 .wrangler
+tmp
+
+
+# Contentlayer
+.contentlayer

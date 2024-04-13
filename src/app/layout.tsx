@@ -1,3 +1,4 @@
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { GeistMono } from "geist/font/mono";
@@ -68,6 +69,7 @@ export default function RootLayout({
         className={`font-sans antialiased ${GeistSans.variable} ${GeistMono.variable}`}
       >
         <Toaster />
+        <SonnerToaster />
         <AI>
           <Providers
             attribute="class"
@@ -89,4 +91,4 @@ export default function RootLayout({
   );
 }
 
-export const runtime = 'edge' // enable edge runtime on deployment
+// export const runtime = 'edge' // enable edge runtime on deployment

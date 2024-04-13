@@ -1,72 +1,52 @@
-import React from "react";
-import Markdown from "react-markdown";
+// LLMResponseComponent.tsx
+import { ClipboardCopyIcon } from "@radix-ui/react-icons";
+import React, { useCallback } from "react";
+import Markdown from "./Markdown";
+
+import { toast } from "sonner";
 
 interface LLMResponseComponentProps {
     llmResponse: string;
     currentLlmResponse: string;
 }
 
-// Component to display streaming content
-const StreamingComponent: React.FC<{ currentLlmResponse: string }> = ({
-    currentLlmResponse,
-}) => {
-    console.log("📡 Streaming response content...");
-    return (
-        <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg p-4 mt-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold dark:text-white text-black">
-                    Answer
-                </h2>
-                <img src="./groq.png" alt="groq logo" className="w-6 h-6" />
-            </div>
-            <div className="dark:text-gray-300 text-gray-800">
-                <Markdown>{currentLlmResponse}</Markdown>
-            </div>
-        </div>
-    );
-};
-
-// Main LLMResponseComponent
 const LLMResponseComponent: React.FC<LLMResponseComponentProps> = ({
     llmResponse,
     currentLlmResponse,
 }) => {
     const isLoading = !llmResponse && !currentLlmResponse;
-    const hasLlmResponse = llmResponse.trim().length > 0;
+    const contentToShow = llmResponse || currentLlmResponse;
 
-    console.log(
-        hasLlmResponse
-            ? "📄 Displaying LLM response..."
-            : "⏳ Loading LLM response...",
-    );
+    const copyToClipboard = useCallback(() => {
+        navigator.clipboard.writeText(contentToShow);
+
+        toast("Copied to clipboard", {
+            description: "The LLM response has been copied to your clipboard",
+        });
+    }, [contentToShow]);
 
     return (
-        <>
+        <div className="bg-white dark:bg-slate-800  shadow-lg rounded-lg p-4 mt-4 relative">
             {isLoading ? (
-                <div className="flex justify-center items-center p-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-                </div>
-            ) : hasLlmResponse ? (
-                <div className="dark:bg-slate-800 bg-white shadow-lg rounded-lg p-4 mt-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold dark:text-white text-black">
-                            Answer
-                        </h2>
-                        <img
-                            src="./mistral.png"
-                            alt="mistral logo"
-                            className="w-6 h-6 mr-2"
-                        />
-                        <img src="./groq.png" alt="groq logo" className="w-6 h-6" />
-                    </div>
-                    <div className="dark:text-gray-300 text-gray-800">
-                        <Markdown>{llmResponse}</Markdown>
-                    </div>
+                <div className="animate-pulse">
+                    <div className="h-4 bg-gray-300 rounded-md dark:bg-gray-700 mb-4 w-1/3"></div>
+                    <div className="h-4 bg-gray-300 rounded-md dark:bg-gray-700 mb-4 w-1/2"></div>
+                    <div className="h-4 bg-gray-300 rounded-md dark:bg-gray-700 w-3/4"></div>
                 </div>
             ) : (
-                <StreamingComponent currentLlmResponse={currentLlmResponse} />
+                <>
+                    <div className="prose dark:prose-dark dark:text-white max-w-none w-full pt-3 pb-6">
+                        <Markdown markdown={contentToShow} />
+                    </div>
+                    <button
+                        onClick={copyToClipboard}
+                        className="absolute bottom-3 right-3 bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 dark:text-white p-2 rounded-full"
+                    >
+                        <ClipboardCopyIcon />
+                    </button>
+                </>
             )}
-        </>
+        </div>
     );
 };
 
