@@ -2,7 +2,18 @@
 
 LLM Open Search is an advanced search engine powered by AI to deliver search results, images, videos, and follow-up questions based on user queries. This project is a fork of the [Perplexity-Inspired LLM Answer Engine](https://github.com/developersdigest/llm-answer-engine) and extends its capabilities using Google's API, Cloudflare Workers AI, and Groq-Mixtral AI models.
 
-![Example](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmJ0ZnhmNjkwYzczZDlqZzM1dDRka2k1MGx6dW02ZHl5dzV0aGQwMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mluzeYSMGoAnSXg0ft/giphy.gif)
+<div>
+    <a href="https://www.loom.com/share/d21687daed7d4f19900c7aa957387ea4">
+      <p>Open Search - Powering insights with AI - 13 April 2024 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/d21687daed7d4f19900c7aa957387ea4">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/d21687daed7d4f19900c7aa957387ea4-with-play.gif">
+    </a>
+</div>
+
+---
+
+<div style="position: relative; padding-bottom: 63.49206349206349%; height: 0;"><iframe src="https://www.loom.com/embed/42bf2570c66b4b6fbf53ba1756d38e55" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
 
 ## Credits ✨
 
