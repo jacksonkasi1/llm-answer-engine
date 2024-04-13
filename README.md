@@ -11,9 +11,6 @@ LLM Open Search is an advanced search engine powered by AI to deliver search res
     </a>
 </div>
 
----
-
-<div style="position: relative; padding-bottom: 63.49206349206349%; height: 0;"><iframe src="https://www.loom.com/embed/42bf2570c66b4b6fbf53ba1756d38e55" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
 
 ## Credits ✨
 
